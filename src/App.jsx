@@ -52,23 +52,30 @@ const average = (arr) =>
 
 function App() {
   const [movies, setMovies] = useState(tempMovieData);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <>
-      <Navbar movies={movies} />
-      <Main movies={movies} />
+      <Navbar>
+        <Logo />
+        <SearchBar />
+        <NumResult movies={movies} />
+      </Navbar>
+      <Main>
+        <ListBox>
+          <ToggleButton isOpen={isOpen} setIsOpen={setIsOpen} />
+          {isOpen && <MovieList movies={movies} />}
+        </ListBox>
+        <WatchedBox />
+      </Main>
     </>
   );
 }
 
-function Navbar({ movies }) {
+function Navbar({ children }) {
   return (
     <>
-      <nav className="nav-bar">
-        <Logo />
-        <SearchBar />
-        <NumResult movies={movies} />
-      </nav>
+      <nav className="nav-bar">{children}</nav>
     </>
   );
 }
@@ -103,23 +110,12 @@ function NumResult({ movies }) {
   );
 }
 
-function Main({ movies }) {
-  const [isOpen, setIsOpen] = useState(true);
-  return (
-    <main className="main">
-      <ListBox movies={movies} isOpen={isOpen} setIsOpen={setIsOpen} />
-      <WatchedBox />
-    </main>
-  );
+function Main({ children }) {
+  return <main className="main">{children}</main>;
 }
 
-function ListBox({ movies, isOpen, setIsOpen }) {
-  return (
-    <div className="box">
-      <ToggleButton isOpen={isOpen} setIsOpen={setIsOpen} />
-      {isOpen && <MovieList movies={movies} />}
-    </div>
-  );
+function ListBox({ children }) {
+  return <div className="box">{children}</div>;
 }
 
 function ToggleButton({ isOpen, setIsOpen }) {
