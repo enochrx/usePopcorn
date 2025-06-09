@@ -62,7 +62,7 @@ function App() {
         <NumResult movies={movies} />
       </Navbar>
       <Main>
-        {/* >>Using reuseable component by passing in elements props explicitly as a method of component composition -- same principle in react router<< */}
+        {/* >>Using reuseable component by passing in elements props explicitly as a method of component composition -- same principle in react router<<
         <Box element={<MovieList movies={movies} />} />
         <Box
           element={
@@ -71,18 +71,20 @@ function App() {
               <WatchedSummary watched={watched} />
               <WatchedMoviesList watched={watched} />
             </>
-          }
+          } 
         />
+          ß*/}
 
         {/* 
           >>Using reuseable component by passing in the children props implicitly as a method of component composition<<
-          <Box>
+        */}
+        <Box>
           <MovieList movies={movies} />
         </Box>
         <Box>
-          <WatchedSummary watched={watched} /> 
+          <WatchedSummary watched={watched} />
           <WatchedMoviesList watched={watched} />
-        </Box> */}
+        </Box>
       </Main>
     </>
   );
