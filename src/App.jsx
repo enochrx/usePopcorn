@@ -75,7 +75,7 @@ function App() {
         />
 
         {/* 
-          >>Using reuseable component by passing in the children as props as a method of component composition<<
+          >>Using reuseable component by passing in the children props implicitly as a method of component composition<<
           <Box>
           <MovieList movies={movies} />
         </Box>
