@@ -62,7 +62,7 @@ function App() {
         <NumResult movies={movies} />
       </Navbar>
       <Main>
-        {/* >>Using reuseable component by passing in elements as props as a method of component composition -- same principle in react router<< */}
+        {/* >>Using reuseable component by passing in elements props explicitly as a method of component composition -- same principle in react router<< */}
         <Box element={<MovieList movies={movies} />} />
         <Box
           element={
