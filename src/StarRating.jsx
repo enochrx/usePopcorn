@@ -11,13 +11,17 @@ const starContainerStyle = {
   //   gap: "4px",
 };
 
-const textStyle = {
-  lineHeight: "1",
-  margin: "0",
-};
-
-const StarRating = ({ maxRating = 5 }) => {
+const StarRating = ({ maxRating = 5, color = "#fcc419", size = 48 }) => {
   const [rating, setRating] = useState(0);
+  const [tempRating, setTempRating] = useState(0);
+
+  const textStyle = {
+    lineHeight: "1",
+    margin: "0",
+    color,
+    fontSize: `${size / 1.5}px`,
+  };
+
   return (
     <div style={containerStyle}>
       <div style={starContainerStyle}>
@@ -25,11 +29,13 @@ const StarRating = ({ maxRating = 5 }) => {
           <Star
             key={i}
             onRate={() => setRating(i + 1)}
-            full={rating >= i + 1}
+            onHoverIn={() => setTempRating(i + 1)}
+            onHoverOut={() => setTempRating(0)}
+            full={tempRating ? tempRating >= i + 1 : rating >= i + 1}
           />
         ))}
       </div>
-      <p style={textStyle}>{rating || ""}</p>
+      <p style={textStyle}>{tempRating || rating || ""}</p>
     </div>
   );
 };
@@ -41,9 +47,15 @@ const starStyle = {
   cursor: "pointer",
 };
 
-const Star = ({ onRate, full }) => {
+const Star = ({ onRate, onHoverIn, onHoverOut, full }) => {
   return (
-    <span role="button" style={starStyle} onClick={onRate}>
+    <span
+      role="button"
+      style={starStyle}
+      onClick={onRate}
+      onMouseEnter={onHoverIn}
+      onMouseLeave={onHoverOut}
+    >
       {full ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
