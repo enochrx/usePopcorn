@@ -12,8 +12,6 @@ const starContainerStyle = {
   //   gap: "4px",
 };
 
-StarRating.propTypes = { maxRating: PropTypes.number };
-
 const StarRating = ({
   maxRating = 5,
   color = "#fcc419",
@@ -105,5 +103,7 @@ const Star = ({ onRate, onHoverIn, onHoverOut, full, color, size }) => {
     </span>
   );
 };
+
+StarRating.propTypes = { maxRating: PropTypes.number.isRequired };
 
 export default StarRating;
