@@ -55,24 +55,61 @@ const KEY = "9c1002cc";
 function App() {
   const [movies, setMovies] = useState(tempMovieData);
   const [watched, setWatched] = useState(tempWatchedData);
-  const query = "Interstellar";
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
-  useEffect(function () {
-    async function fetchMovies() {
-      const res = await fetch(
-        `https://www.omdbapi.com/?s=${query}&apikey=${KEY}`
-      );
-      const data = await res.json();
-      setMovies(data.Search);
-    }
-    fetchMovies();
-  }, []);
+  // const query = "interstellar";
+  function handleSelectMovie(id) {
+    setSelectedId(id);
+  }
+
+  function handleCloseSelectedMovie() {
+    setSelectedId(null);
+  }
+
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(
+            `https://www.omdbapi.com/?s=${query}&apikey=${KEY}`
+          );
+          if (!res.ok)
+            throw new Error("Something went wrong with fecthing movies");
+
+          const data = await res.json();
+          if (data.Response === "False") throw new Error("Movie not found!");
+
+          setMovies(data.Search);
+          console.log(data.Search);
+        } catch (err) {
+          console.error(err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      if (query.length < 3) {
+        setMovies([]);
+        setError("");
+        return;
+      }
+
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <>
       <Navbar>
         <Logo />
-        <SearchBar />
+        <SearchBar query={query} setQuery={setQuery} />
         <NumResult movies={movies} />
       </Navbar>
       <Main>
@@ -93,21 +130,44 @@ function App() {
           >>Using reuseable component by passing in the children props implicitly as a method of component composition<<
         */}
         <Box>
-          <MovieList movies={movies} />
+          {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
+          {isLoading && <Loader />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
+          {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedMoviesList watched={watched} />
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              onCloseMovie={handleCloseSelectedMovie}
+            />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMoviesList watched={watched} />
+            </>
+          )}
         </Box>
       </Main>
     </>
   );
 }
 
+function ErrorMessage({ message }) {
+  return (
+    <p className="error">
+      <span>⛔️</span>
+      {message}
+    </p>
+  );
+}
+
 function Navbar({ children }) {
   return (
     <>
-      §<nav className="nav-bar">{children}</nav>
+      <nav className="nav-bar">{children}</nav>
     </>
   );
 }
@@ -121,8 +181,7 @@ function Logo() {
   );
 }
 
-function SearchBar() {
-  const [query, setQuery] = useState("");
+function SearchBar({ query, setQuery }) {
   return (
     <input
       className="search"
@@ -158,19 +217,23 @@ function Box({ children }) {
   );
 }
 
-function MovieList({ movies }) {
+function Loader() {
+  return <p className="loader">Loading...</p>;
+}
+
+function MovieList({ movies, onSelectMovie }) {
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
-        <Movie key={movie.imdbID} movie={movie} />
+        <Movie key={movie.imdbID} movie={movie} onSelectMovie={onSelectMovie} />
       ))}
     </ul>
   );
 }
 
-function Movie({ movie }) {
+function Movie({ movie, onSelectMovie }) {
   return (
-    <li>
+    <li onClick={() => onSelectMovie(movie.imdbID)}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
@@ -206,6 +269,17 @@ function Movie({ movie }) {
 //     </div>
 //   );
 // }
+
+function MovieDetails({ selectedId, onCloseMovie }) {
+  return (
+    <div className="details">
+      <button className="btn-back" onClick={() => onCloseMovie()}>
+        &larr;
+      </button>
+      {selectedId}
+    </div>
+  );
+}
 
 function WatchedSummary({ watched }) {
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
