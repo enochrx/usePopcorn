@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import StarRating from "./StarRating";
 
 const tempMovieData = [
   {
@@ -62,7 +63,7 @@ function App() {
 
   // const query = "interstellar";
   function handleSelectMovie(id) {
-    setSelectedId(id);
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
 
   function handleCloseSelectedMovie() {
@@ -271,12 +272,83 @@ function Movie({ movie, onSelectMovie }) {
 // }
 
 function MovieDetails({ selectedId, onCloseMovie }) {
+  const [movie, setMovie] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    Actors: actors,
+    Director: director,
+    Language: language,
+    Genre: genre,
+    Title: title,
+    imdbRating,
+    Runtime: runtime,
+    Plot: plot,
+    Poster: poster,
+    Released: released,
+  } = movie;
+
+  function handleAddWatched(movie) {
+    setWatched((watched) => [...watched, movie]);
+  }
+
+  useEffect(
+    function () {
+      async function getMovieDetails() {
+        try {
+          setIsLoading(true);
+          const res = await fetch(
+            `https://www.omdbapi.com/?i=${selectedId}&apikey=${KEY}`
+          );
+          if (!res.ok) throw new Error("Unable to fetch movie");
+          const data = await res.json();
+          setMovie(data);
+          setIsLoading(false);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      getMovieDetails();
+    },
+    [selectedId]
+  );
+
   return (
     <div className="details">
-      <button className="btn-back" onClick={() => onCloseMovie()}>
-        &larr;
-      </button>
-      {selectedId}
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className="btn-back" onClick={onCloseMovie}>
+              &larr;
+            </button>
+            <img src={poster} alt={`Poster of ${movie}movie`} />
+            <div className="detaails-overview">
+              <h2>{title}</h2>
+              <p>
+                {released} &bull; {runtime}
+              </p>
+              <p>{genre}</p>
+              <p>
+                <span>⭐️</span>
+                {imdbRating} IMDb rating
+              </p>
+            </div>
+          </header>
+          <section>
+            <div className="rating">
+              <StarRating maxRating={10} size={24} />
+            </div>
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>Starring: {actors}</p>
+            <p>Directed by {director}</p>
+            <p> Languages: {language}</p>
+          </section>
+        </>
+      )}
     </div>
   );
 }
